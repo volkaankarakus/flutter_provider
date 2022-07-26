@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_provider/product/global/product_context.dart';
+import 'package:flutter_provider/product/global/user_context.dart';
 import 'package:provider/provider.dart';
 
 import '../../../product/constant/image_enums.dart';
@@ -13,25 +15,23 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
+  /* final LoginViewModel _loginViewModel = LoginViewModel(); */
+
   final String name = 'Name';
   final String data = 'Login';
   final login = 'Login';
   final String data2 = 'Remember me';
 
-  final LoginViewModel _loginViewModel = LoginViewModel();
-  @override
-  void initState() {
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: _loginViewModel,
+    return ChangeNotifierProvider(
+      create: (_) => LoginViewModel(),
       builder: (context, child) {
         return Scaffold(
           appBar: AppBar(
             leading: _loadingWidget(),
+            title: Text(context.read<UserContext?>()?.name ?? ''),
+            actions: [Text(context.watch<ProductContext>().newUsername)],
           ),
           body: Column(
             children: [
@@ -39,18 +39,31 @@ class _LoginViewState extends State<LoginView> {
                   height: MediaQuery.of(context).size.height * 0.3,
                   width: MediaQuery.of(context).size.width * 0.4,
                   child: ImageEnums.door.toImage),
-              Text(
-                login,
-                style: Theme.of(context).textTheme.headline3,
+              Selector<LoginViewModel, String>(
+                selector: (_, model) => model.username,
+                builder: (context, value, _) {
+                  return Text(
+                    value,
+                    style: Theme.of(context).textTheme.headline3,
+                  );
+                },
               ),
-              TextField(decoration: ProjectInputs(name)),
+              TextField(
+                decoration: ProjectInputs(name),
+                onChanged: context.read<LoginViewModel>().setUsername,
+              ),
               ElevatedButton(
-                  onPressed: _loginViewModel.isLoading
+                  onPressed: context.read<LoginViewModel>().isLoading
                       ? null
                       : () {
-                          _loginViewModel.controlTextValue();
-                        }, 
+                          context.read<LoginViewModel>().controlTextValue();
+                        },
                   child: Center(child: Text(data))),
+              ElevatedButton(
+                  onPressed: () {
+                    context.read<ProductContext>().changeName('volkan');
+                  },
+                  child: Text('Change title'))
             ],
           ),
         );
@@ -61,7 +74,7 @@ class _LoginViewState extends State<LoginView> {
   Widget _loadingWidget() {
     return Selector<LoginViewModel, bool>(
       selector: (context, viewModel) {
-        return viewModel.isLoading ; 
+        return viewModel.isLoading;
       },
       builder: (context, value, child) {
         return value
