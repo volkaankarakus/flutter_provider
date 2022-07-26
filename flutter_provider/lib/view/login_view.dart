@@ -63,7 +63,26 @@ class _LoginViewState extends State<LoginView> {
                   onPressed: () {
                     context.read<ProductContext>().changeName('volkan');
                   },
-                  child: Text('Change title'))
+                  child: Text('Change title')),
+              ElevatedButton(
+                  onPressed: () {
+                    context.read<LoginViewModel>().changeClick();
+                  },
+                  child: Text('Containeri goster')),
+              Selector<LoginViewModel, bool>(
+                builder: (context, value, child) {
+                  return value
+                      ? Container(
+                          height: 30,
+                          width: 30,
+                          color: Colors.red,
+                        )
+                      : SizedBox.shrink();
+                },
+                selector: (context, provider) {
+                  return provider.isClickedButton;
+                },
+              ),
             ],
           ),
         );

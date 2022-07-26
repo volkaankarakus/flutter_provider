@@ -4,9 +4,15 @@ class LoginViewModel extends ChangeNotifier {
   String? _inputText;
 
   bool isLoading = false;
+  bool isClickedButton = false;
 
   void _changeLoading() {
     isLoading = !isLoading;
+    notifyListeners();
+  }
+
+  void changeClick() {
+    isClickedButton = !isClickedButton;
     notifyListeners();
   }
 
